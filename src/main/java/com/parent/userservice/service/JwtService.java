@@ -37,13 +37,14 @@ public class JwtService {
         byte[] keyBytes= Decoders.BASE64.decode(SECRET); 
         return Keys.hmacShaKeyFor(keyBytes); 
     } 
+
+    public Boolean validateToken(String token, UserDetails userDetails) { 
+        final String username = extractUsername(token); 
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token)); 
+    } 
   
     public String extractUsername(String token) { 
         return extractClaim(token, Claims::getSubject); 
-    } 
-  
-    public Date extractExpiration(String token) { 
-        return extractClaim(token, Claims::getExpiration); 
     } 
   
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) { 
@@ -63,11 +64,10 @@ public class JwtService {
     private Boolean isTokenExpired(String token) { 
         return extractExpiration(token).before(new Date()); 
     } 
-  
-    public Boolean validateToken(String token, UserDetails userDetails) { 
-        final String username = extractUsername(token); 
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token)); 
+
+    public Date extractExpiration(String token) { 
+        return extractClaim(token, Claims::getExpiration); 
     } 
-  
+
   
 }
